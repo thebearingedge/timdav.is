@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "hexo generate",
+    "build": "npm run --prefix themes/tranquilpeak build && hexo generate",
     "start": "hexo server",
     "clean": "hexo clean",
     "hexo": "hexo --"
