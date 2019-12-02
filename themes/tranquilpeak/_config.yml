@@ -32,7 +32,7 @@ sidebar:
     menu:
         home:
             title: global.home
-            url: /
+            url: ''
             icon: fa fa-home
         categories:
             title: global.categories
