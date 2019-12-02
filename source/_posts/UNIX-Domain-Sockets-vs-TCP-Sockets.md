@@ -33,7 +33,7 @@ If you are having connectivity issues, then your first step is to verify that th
 
 ## TCP Sockets
 
-When I was self-studying, I slowly pieced together how clients and servers shoot [HTTP messages](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) at each other over [TCP connections](https://en.wikipedia.org/wiki/Transmission_Control_Protocol#Protocol_operation). I don't often interact with sockets directly; these are hidden behind client libraries or web frameworks, where HTTP request and response messages are the center of attention.
+When I was self-studying, I slowly pieced together how clients and servers shoot [HTTP messages](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) at each other over [TCP connections](https://en.wikipedia.org/wiki/Transmission_Control_Protocol#Protocol_operation). I don't often interact with TCP connections directly; these are hidden behind client libraries or web frameworks, where HTTP request and response messages are the center of attention.
 
 Here's my simplified summary of an HTTP exchange between a client and a server over TCP:
 
@@ -62,7 +62,7 @@ The term [inter-process communication (IPC)](https://en.wikipedia.org/wiki/Inter
 
 ## UNIX Domain Sockets
 
-This is a topic I've never really looked into until now. I'm often trying to come up with quick and simple ways to make underlying technologies (like TCP) more concrete to my students. So I've been playing around with the [`net` module](https://nodejs.org/docs/latest-v10.x/api/net.html#net_net) while writing some Node.js.
+This is a topic I've never really looked into until now. I'm often trying to come up with quick and simple ways to make underlying technologies (like TCP) more concrete to my students. So I've been playing around with the [`net` module](https://nodejs.org/docs/latest-v10.x/api/net.html#net_net) while writing some Node.js lessons.
 
 Then I saw this:
 
@@ -75,7 +75,7 @@ There are a number of ways to start a `net.Server`, including listening at a UNI
 server.listen(path[, backlog][, callback])
 ```
 
-So after a quick bit of reading I came to understand that a [UNIX domain socket](https://en.wikipedia.org/wiki/Unix_domain_socket) can be used to set up bi-directional communication between processes, much like TCP connections, but without the overhead (or security implications) of using the operating system's network stack. These sockets are represented as files _in the filesystem hierarchy_ as opposed to just file descriptors (see [Everything is a file](https://en.wikipedia.org/wiki/Everything_is_a_file)). This means that you can actually see the file once it's been created by the socket server program.
+So after a quick bit of reading I came to understand that a [UNIX domain socket](https://en.wikipedia.org/wiki/Unix_domain_socket) can be used to set up bi-directional communication between processes, much like TCP connections, but without the overhead (or security implications) of using any networking facilities. These sockets are represented as files _in the filesystem hierarchy_ as opposed to just file descriptors (see [Everything is a file](https://en.wikipedia.org/wiki/Everything_is_a_file)). This means that you can actually see the file once it's been created by the socket server program.
 
 > If the UNIX domain socket (that is visible as a file system path) is created and used in conjunction with one of Node.js' API abstractions such as net.createServer(), it will be unlinked as part of server.close().
 [&mdash; nodejs.org/docs](https://nodejs.org/docs/latest-v10.x/api/net.html#net_identifying_paths_for_ipc_connections)
@@ -122,7 +122,7 @@ lc-messages-dir = /usr/share/mysql
 skip-external-locking
 ```
 
-**The part I was fuzzy on was the `socket` setting**. MySQL _also_ accepts connections via a special type of file known as a [Unix domain socket](https://en.wikipedia.org/wiki/Unix_domain_socket).
+Until now, **the part I was fuzzy on was the `socket` setting**.
 
 So as an experiment I ran `ls -lah /var/run/mysqld` in my Ubuntu Docker container.
 
@@ -147,4 +147,8 @@ Holy shit!
 
 There's an _empty file_ there, named `mysql.sock` and its type is `s` (for socket!).
 
-This explains the error message `No such file or directory`. When passing `'localhost'` as the first parameter to `mysqli_real_connect()`, it's assumed that MySQL has been started and `/var/run/mysqld/mysqld.sock` exists. When MySQL is stopped, it deletes the socket file.
+When passing `'localhost'` as the first parameter to `mysqli_real_connect()`, it's assumed that MySQL has been started and `/var/run/mysqld/mysqld.sock` exists. When MySQL is stopped, it deletes the socket file. This explains the error message `No such file or directory`.
+
+## Still Learning
+
+While I do think that a top-down approach to learning about technology is workable, things like this keep popping up for me. I may have an _intuition_ for how or why something works, but in the end there are plenty of dots left unconnected. I'll try to continue writing about these gaps in my knowledge as I recognize and try to fill them.
